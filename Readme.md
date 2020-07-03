@@ -46,8 +46,6 @@ when a label has been created.
 Labels are automatically created when you put the order on the status ID you entered in the configuration form,
 usually the treatment status.
 ---
-For relay / pickup points, you need to integrate a template to choose one relay in the list provided by the loop 'chronopost.pickup.point.get.relay'.
-Ideally from a map, like google maps, yandex, or similar. 
 
 Then, you can either create an entry in the address table and use it immediately,
 or overload the thelia.order.delivery form to accept entire addresses as input instead of only an address id
@@ -55,7 +53,7 @@ from which to get the entire address.
 
 ## Loop
 
-###[chronopost.pickup.point.check.rights]
+###[chronopost.home.delivery.check.rights]
 
 Check if label directory is writable and readable.
 
@@ -72,10 +70,10 @@ None
 
 ### Exemple
 
-```{loop name="yourloopname" type="chronopost.pickup.point.check.rights"}<!-- your template -->{/loop}```
+```{loop name="yourloopname" type="chronopost.home.delivery.check.rights"}<!-- your template -->{/loop}```
 
 
-###[chronopost.pickup.point.delivery.mode]
+###[chronopost.home.delivery.delivery.mode]
 
 ### Input arguments
 
@@ -93,49 +91,7 @@ None
 
 ### Exemple
 
-```{loop name="yourloopname" type="chronopost.pickup.point.delivery.mode"}<!-- your template -->{/loop}```
-
-###[chronopost.pickup.point.get.relay]
-
-Search for pickup points (relays)
-
-### Input arguments
-
-|Argument |Description |
-|---      |--- |
-|**orderweight** | REQUIRED : The order weight |
-|**countryid** | The country ID in the database |
-|**zipcode** | Zipcode where to search for pickup points (needs to be paired with city) |
-|**city** | City in which to search for the pickup points (needs to be paired with a zipcode) |
-|**address** | An address to search pickup points close by |
-
-### Output arguments
-
-The outputs are the same given in return by the Chronopost API response from the recherchePointChronopostInterParService method, in uppercase.
-Here will be displayed the most important ones
-
-|Variable   |Description |
-|---        |--- |
-|$IDENTIFIANT    | The pickup point ID |
-|$NOM    | The pickup point name |
-|$ADRESSE1    | Pickup point address line 1 |
-|$ADRESSE2    | Pickup point address line 2 |
-|$ADRESSE3    | Pickup point address line 3 |
-|$CODEPOSTAL    | Pickup point Zipcode |
-|$LOCALITE    | Pickup point City |
-|$CODEPAYS    | Pickup point country code ISO ALPHA2 |
-|$COORDGEOLOCALISATIONLATITUDE    | Pickup point latitude coordinate |
-|$COORDGEOLOCALISATIONLONGITUDE    | Pickup point longitude coordinate |
-|$URLGOOGLEMAPS    | URL for the position of the pickup point on google mazps |
-|$LISTEPERIODEFERMETURE    | (Array) List of closed periods for the pickup point |
-|$LISTEPERIODEOUVERTURE    | (Array) List of opened periods for the pickup point |
-|$TYPEDEPOINT    | Type of pickup point |
-|$POIDSMAXI    | Max package weight accepted for this relay |
-|$DISTANCEENMETRE    | Distance in meters between the given address and the relay |
-
-### Exemple
-
-```{loop name="yourloopname" type="chronopost.pickup.point.delivery.mode"}<!-- your template -->{/loop}```
+```{loop name="yourloopname" type="chronopost.home.delivery.delivery.mode"}<!-- your template -->{/loop}```
 
 
 ###[chronopost]
@@ -160,7 +116,7 @@ Here will be displayed the most important ones
 
 ```{loop name="chronopost" type="socolissimo"}<!-- your template -->{/loop}```
 
-###[chronopost.pickup.point.area.freeshipping]
+###[chronopost.home.delivery.area.freeshipping]
 
 ### Input arguments
 
@@ -179,9 +135,9 @@ Here will be displayed the most important ones
 
 ### Exemple
 
-```{loop name="chronopost.pickup.point.area.freeshipping" type="socolissimo"}<!-- your template -->{/loop}```
+```{loop name="chronopost.home.delivery.area.freeshipping" type="socolissimo"}<!-- your template -->{/loop}```
 
-###[chronopost.pickup.point.export.label]
+###[chronopost.home.delivery.export.label]
 
 ### Input arguments
 
@@ -206,7 +162,7 @@ Here will be displayed the most important ones
 
 ### Exemple
 
-```{loop name="chronopost.pickup.point.area.freeshipping" type="socolissimo"}<!-- your template -->{/loop}```
+```{loop name="chronopost.home.delivery.area.freeshipping" type="socolissimo"}<!-- your template -->{/loop}```
 
 ##Integration
 

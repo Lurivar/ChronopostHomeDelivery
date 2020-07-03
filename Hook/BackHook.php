@@ -1,6 +1,6 @@
 <?php
 
-namespace ChronopostPickupPoint\Hook;
+namespace ChronopostHomeDelivery\Hook;
 
 
 use Thelia\Core\Event\Hook\HookRenderEvent;
@@ -10,11 +10,11 @@ class BackHook extends BaseHook
 {
     public function onModuleConfiguration(HookRenderEvent $event)
     {
-        $event->add($this->render('ChronopostPickupPoint/ChronopostPickupPointConfig.html'));
+        $event->add($this->render('ChronopostHomeDelivery/ChronopostHomeDeliveryConfig.html'));
     }
 
     public function onModuleConfigJs(HookRenderEvent $event)
     {
-        $event->add($this->render('ChronopostPickupPoint/module-config-js.html'));
+        $event->add($this->render('ChronopostHomeDelivery/module-config-js.html'));
     }
 }

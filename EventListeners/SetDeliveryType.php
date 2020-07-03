@@ -1,14 +1,12 @@
 <?php
 
-namespace ChronopostPickupPoint\EventListeners;
+namespace ChronopostHomeDelivery\EventListeners;
 
 
-use ChronopostPickupPoint\ChronopostPickupPoint;
-use ChronopostPickupPoint\Config\ChronopostPickupPointConst;
-use ChronopostPickupPoint\Model\ChronopostPickupPointAddress;
-use ChronopostPickupPoint\Model\ChronopostPickupPointAddressQuery;
-use ChronopostPickupPoint\Model\ChronopostPickupPointOrder;
-use ChronopostPickupPoint\Model\ChronopostPickupPointOrderQuery;
+use ChronopostHomeDelivery\ChronopostHomeDelivery;
+use ChronopostHomeDelivery\Config\ChronopostHomeDeliveryConst;
+use ChronopostHomeDelivery\Model\ChronopostHomeDeliveryOrder;
+use ChronopostHomeDelivery\Model\ChronopostHomeDeliveryOrderQuery;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Thelia\Core\Event\Order\OrderEvent;
@@ -51,24 +49,24 @@ class SetDeliveryType implements EventSubscriberInterface
      */
     protected function checkModule($id)
     {
-        return $id == ChronopostPickupPoint::getModuleId();
+        return $id == ChronopostHomeDelivery::getModuleId();
     }
 
     /**
      * @param OrderEvent $orderEvent
      * @throws \Propel\Runtime\Exception\PropelException
      */
-    public function saveChronopostPickupPointOrder(OrderEvent $orderEvent)
+    public function saveChronopostHomeDeliveryOrder(OrderEvent $orderEvent)
     {
         if ($this->checkModule($orderEvent->getOrder()->getDeliveryModuleId())) {
 
             $request = $this->getRequest();
-            $chronopostOrder = new ChronopostPickupPointOrder();
+            $chronopostOrder = new ChronopostHomeDeliveryOrder();
 
             $orderId = $orderEvent->getOrder()->getId();
 
-            foreach (ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_DELIVERY_CODES as $name => $code) {
-                if (strtoupper($name) === $request->getSession()->get('ChronopostPickupPointDeliveryType')) {
+            foreach (ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_DELIVERY_CODES as $name => $code) {
+                if (strtoupper($name) === $request->getSession()->get('ChronopostHomeDeliveryDeliveryType')) {
                     $chronopostOrder
                         ->setDeliveryType($name)
                         ->setDeliveryCode($code)
@@ -78,7 +76,7 @@ class SetDeliveryType implements EventSubscriberInterface
 
             $chronopostOrder
                 ->setOrderId($orderId)
-                ->setLabelDirectory(ChronopostPickupPoint::getConfigValue(ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_LABEL_DIR))
+                ->setLabelDirectory(ChronopostHomeDelivery::getConfigValue(ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_LABEL_DIR))
                 ->save();
         }
     }
@@ -88,13 +86,13 @@ class SetDeliveryType implements EventSubscriberInterface
      * @return null
      * @throws \Propel\Runtime\Exception\PropelException
      */
-    public function setChronopostPickupPointDeliveryType(OrderEvent $orderEvent)
+    public function setChronopostHomeDeliveryDeliveryType(OrderEvent $orderEvent)
     {
         if ($this->checkModule($orderEvent->getDeliveryModule())) {
             $request = $this->getRequest();
 
             $request->getSession()->set('ChronopostAddressId', $orderEvent->getDeliveryAddress());
-            $request->getSession()->set('ChronopostPickupPointDeliveryType', $request->get('chronopost-pickup-point-delivery-mode'));
+            $request->getSession()->set('ChronopostHomeDeliveryDeliveryType', $request->get('chronopost-home-delivery-delivery-mode'));
         }
 
         return ;
@@ -151,7 +149,7 @@ class SetDeliveryType implements EventSubscriberInterface
      */
     public function writeAPIData(Order $order, $weight = null, $idBox = 1, $skybillRank = 1)
     {
-        $config = ChronopostPickupPointConst::getConfig();
+        $config = ChronopostHomeDeliveryConst::getConfig();
         $customer = $order->getCustomer();
 
         $customerInvoiceAddress = OrderAddressQuery::create()->findPk($order->getInvoiceOrderAddressId());
@@ -168,7 +166,7 @@ class SetDeliveryType implements EventSubscriberInterface
             $weight = 0;
         }
 
-        $chronopostProductCode = ChronopostPickupPointOrderQuery::create()->filterByOrderId($order->getId())->findOne()->getDeliveryCode();
+        $chronopostProductCode = ChronopostHomeDeliveryOrderQuery::create()->filterByOrderId($order->getId())->findOne()->getDeliveryCode();
         $chronopostProductCode = str_pad($chronopostProductCode, 2, "0", STR_PAD_LEFT);
 
         $name2 = "";
@@ -185,24 +183,24 @@ class SetDeliveryType implements EventSubscriberInterface
         /** HEADER */
         $APIData["headerValue"] = [
             "idEmit" => "CHRFR",
-            "accountNumber" => (int)$config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_CODE_CLIENT],
+            "accountNumber" => (int)$config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_CODE_CLIENT],
             "subAccount" => "",
         ];
 
         /** SHIPPER INFORMATIONS */
         $APIData["shipperValue"] = [
-            "shipperCivility" => $config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_SHIPPER_CIVILITY],
-            "shipperName" => $config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_SHIPPER_NAME1],
-            "shipperName2" => $config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_SHIPPER_NAME2],
-            "shipperAdress1" => $config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_SHIPPER_ADDRESS1],
-            "shipperAdress2" => $config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_SHIPPER_ADDRESS2],
-            "shipperZipCode" => $config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_SHIPPER_ZIP],
-            "shipperCity" => $config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_SHIPPER_CITY],
-            "shipperCountry" => $config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_SHIPPER_COUNTRY],
-            "shipperContactName" => $config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_SHIPPER_CONTACT_NAME],
-            "shipperEmail" => $config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_SHIPPER_MAIL],
-            "shipperPhone" => $config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_SHIPPER_PHONE],
-            "shipperMobilePhone" => $config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_SHIPPER_MOBILE_PHONE],
+            "shipperCivility" => $config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_SHIPPER_CIVILITY],
+            "shipperName" => $config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_SHIPPER_NAME1],
+            "shipperName2" => $config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_SHIPPER_NAME2],
+            "shipperAdress1" => $config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_SHIPPER_ADDRESS1],
+            "shipperAdress2" => $config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_SHIPPER_ADDRESS2],
+            "shipperZipCode" => $config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_SHIPPER_ZIP],
+            "shipperCity" => $config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_SHIPPER_CITY],
+            "shipperCountry" => $config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_SHIPPER_COUNTRY],
+            "shipperContactName" => $config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_SHIPPER_CONTACT_NAME],
+            "shipperEmail" => $config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_SHIPPER_MAIL],
+            "shipperPhone" => $config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_SHIPPER_PHONE],
+            "shipperMobilePhone" => $config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_SHIPPER_MOBILE_PHONE],
             "shipperPreAlert" => 0, // todo ?
         ];
 
@@ -221,7 +219,7 @@ class SetDeliveryType implements EventSubscriberInterface
             "customerPhone" => $customerInvoiceAddress->getPhone(),
             "customerMobilePhone" => $customerInvoiceAddress->getCellphone(),
             "customerPreAlert" => 0,
-            "printAsSender" => $config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_PRINT_AS_CUSTOMER_STATUS],
+            "printAsSender" => $config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_PRINT_AS_CUSTOMER_STATUS],
         ];
 
         /** CUSTOMER DELIVERY INFORMATIONS */
@@ -242,7 +240,7 @@ class SetDeliveryType implements EventSubscriberInterface
 
         /** RefValue */
         $APIData["refValue"] = [
-            "shipperRef" => $config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_SHIPPER_NAME1],
+            "shipperRef" => $config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_SHIPPER_NAME1],
             "recipientRef" => $customer->getId(),
         ];
 
@@ -262,17 +260,17 @@ class SetDeliveryType implements EventSubscriberInterface
 
         /** SKYBILL PARAMETERS */
         $APIData["skybillParamsValue"] = [
-            "mode" => $config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_LABEL_TYPE],
+            "mode" => $config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_LABEL_TYPE],
         ];
 
         /** OTHER PARAMETERS */
-        $APIData["password"] = $config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_PASSWORD];
+        $APIData["password"] = $config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_PASSWORD];
         $APIData["version"] = "2.0";
 
         /** EXPIRATION AND SELL-BY DATE (IN CASE OF FRESH PRODUCT) */
         if (in_array($chronopostProductCode, ["2R", "2P", "2Q", "2S", "3X", "3Y", "4V", "4W", "4X"])) {
             $APIData["scheduledValue"] = [
-                "expirationDate" => date('c', mktime(0, 0, 0, date('m'), date('d') + (int)$config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_EXPIRATION_DATE], date('Y'))),
+                "expirationDate" => date('c', mktime(0, 0, 0, date('m'), date('d') + (int)$config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_EXPIRATION_DATE], date('Y'))),
                 "sellByDate" => date('c'),
             ];
         }
@@ -318,23 +316,23 @@ class SetDeliveryType implements EventSubscriberInterface
 
         try {
             /** Check if order has status paid */
-            if ($orderEvent->getStatus() != ChronopostPickupPoint::getConfigValue(ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_TREATMENT_STATUS)) {
+            if ($orderEvent->getStatus() != ChronopostHomeDelivery::getConfigValue(ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_TREATMENT_STATUS)) {
                 return false;
             }
 
             $APIDatas = [];
 
             $reference = $order->getRef();
-            $config = ChronopostPickupPointConst::getConfig();
+            $config = ChronopostHomeDeliveryConst::getConfig();
 
             $log = Tlog::getNewInstance();
             $log->setDestinations("\\Thelia\\Log\\Destination\\TlogDestinationFile");
-            $log->setConfig("\\Thelia\\Log\\Destination\\TlogDestinationFile", 0, THELIA_ROOT . "log" . DS . "log-chronopost-pickup-point-pickup-point.txt");
+            $log->setConfig("\\Thelia\\Log\\Destination\\TlogDestinationFile", 0, THELIA_ROOT . "log" . DS . "log-chronopost-home-delivery-home-delivery.txt");
 
             $log->notice("#CHRONOPOST // L'étiquette de la commande " . $reference . " est en cours de création.");
 
             /** Get order infos from table */
-            $chronopostOrder = ChronopostPickupPointOrderQuery::create()->filterByOrderId($order->getId())->findOne();
+            $chronopostOrder = ChronopostHomeDeliveryOrderQuery::create()->filterByOrderId($order->getId())->findOne();
 
             for ($i = 1; $i <= $boxQuantity; $i++) {
                 if ($chronopostOrder) {
@@ -352,7 +350,7 @@ class SetDeliveryType implements EventSubscriberInterface
             }
 
             /** Send order informations to the Chronopost API */
-            $soapClient = new \SoapClient(ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_SHIPPING_SERVICE_WSDL, array("trace" => 1, "exception" => 1));
+            $soapClient = new \SoapClient(ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_SHIPPING_SERVICE_WSDL, array("trace" => 1, "exception" => 1));
 
             foreach ($APIDatas as $APIData) {
 
@@ -363,14 +361,14 @@ class SetDeliveryType implements EventSubscriberInterface
                 }
 
                 /** Create the label accordingly */
-                $label = $config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_LABEL_DIR] . $response->return->skybillNumber . $this->getLabelExtension($config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_LABEL_TYPE]);
+                $label = $config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_LABEL_DIR] . $response->return->skybillNumber . $this->getLabelExtension($config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_LABEL_TYPE]);
 
                 if (false === @file_put_contents($label, $response->return->skybill)) {
                     $log->error("L'étiquette n'a pas pu être sauvegardée dans " . $label);
                 } else {
-                    $log->notice("L'étiquette Chronopost a été sauvegardée en tant que " . $response->return->skybillNumber . $this->getLabelExtension($config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_LABEL_TYPE]));
+                    $log->notice("L'étiquette Chronopost a été sauvegardée en tant que " . $response->return->skybillNumber . $this->getLabelExtension($config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_LABEL_TYPE]));
                     $chronopostOrder
-                        ->setLabelNumber($response->return->skybillNumber . $this->getLabelExtension($config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_LABEL_TYPE]))
+                        ->setLabelNumber($response->return->skybillNumber . $this->getLabelExtension($config[ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_LABEL_TYPE]))
                         ->save();
                 }
             }
@@ -405,8 +403,8 @@ class SetDeliveryType implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            TheliaEvents::ORDER_SET_DELIVERY_MODULE => array('setChronopostPickupPointDeliveryType', 64),
-            TheliaEvents::ORDER_BEFORE_PAYMENT => array('saveChronopostPickupPointOrder', 256),
+            TheliaEvents::ORDER_SET_DELIVERY_MODULE => array('setChronopostHomeDeliveryDeliveryType', 64),
+            TheliaEvents::ORDER_BEFORE_PAYMENT => array('saveChronopostHomeDeliveryOrder', 256),
             TheliaEvents::ORDER_UPDATE_STATUS => array('createChronopostLabel', 257)
         );
     }

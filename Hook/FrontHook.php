@@ -1,6 +1,6 @@
 <?php
 
-namespace ChronopostPickupPoint\Hook;
+namespace ChronopostHomeDelivery\Hook;
 
 
 use Thelia\Core\Event\Hook\HookRenderEvent;
@@ -10,7 +10,7 @@ class FrontHook extends BaseHook
 {
     public function onOrderDeliveryExtra(HookRenderEvent $event)
     {
-        $content = $this->render("ChronopostPickupPoint.html", $event->getArguments());
+        $content = $this->render("ChronopostHomeDelivery.html", $event->getArguments());
         $event->add($content);
     }
 }

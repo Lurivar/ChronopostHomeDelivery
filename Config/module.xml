@@ -2,14 +2,14 @@
 <module xmlns="http://thelia.net/schema/dic/module"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://thelia.net/schema/dic/module http://thelia.net/schema/dic/module/module-2_2.xsd">
-    <fullnamespace>ChronopostPickupPoint\ChronopostPickupPoint</fullnamespace>
+    <fullnamespace>ChronopostHomeDelivery\ChronopostHomeDelivery</fullnamespace>
     <descriptive locale="en_US">
-        <title>ChronopostPickupPoint</title>
-        <subtitle>Chronopost pickup point delivery module</subtitle>
+        <title>ChronopostHomeDelivery</title>
+        <subtitle>Chronopost home delivery module</subtitle>
     </descriptive>
     <descriptive locale="fr_FR">
-        <title>ChronopostPickupPoint</title>
-        <subtitle>Module de livraison en point relais Chronopost</subtitle>
+        <title>ChronopostHomeDelivery</title>
+        <subtitle>Module de livraison à domicile Chronopost</subtitle>
     </descriptive>
     <languages>
         <language>en_US</language>
