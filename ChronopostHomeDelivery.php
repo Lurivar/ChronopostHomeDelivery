@@ -429,6 +429,6 @@ class ChronopostHomeDelivery extends AbstractDeliveryModule
 
     public function getDeliveryMode()
     {
-        return "home";
+        return "delivery";
     }
 }
