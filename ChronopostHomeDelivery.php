@@ -416,7 +416,7 @@ class ChronopostHomeDelivery extends AbstractDeliveryModule
      * @param Country $country
      * @return array Area ids
      */
-    private function getAllAreasForCountry(Country $country)
+    public function getAllAreasForCountry(Country $country)
     {
         $areaArray = [];
 
