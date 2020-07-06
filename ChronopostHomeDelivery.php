@@ -27,6 +27,7 @@ use Thelia\Core\HttpFoundation\Session\Session;
 use Thelia\Install\Database;
 use Thelia\Model\ConfigQuery;
 use Thelia\Model\Country;
+use Thelia\Model\CountryArea;
 use Thelia\Model\ModuleQuery;
 use Thelia\Module\AbstractDeliveryModule;
 use Thelia\Module\BaseModule;
@@ -146,11 +147,20 @@ class ChronopostHomeDelivery extends AbstractDeliveryModule
      */
     public function isValidDelivery(Country $country)
     {
-        /** @TODO Change to CountryArea which is not deprecated */
-        $areaId = $country->getAreaId();
+        if (empty($this->getAllAreasForCountry($country))) {
+            return false;
+        }
+
+        $countryAreas = $country->getCountryAreas();
+        $areasArray = [];
+
+        /** @var CountryArea $countryArea */
+        foreach ($countryAreas as $countryArea) {
+            $areasArray[] = $countryArea->getAreaId();
+        }
 
         $prices = ChronopostHomeDeliveryPriceQuery::create()
-            ->filterByAreaId($areaId)
+            ->filterByAreaId($areasArray)
             ->findOne();
 
         $freeShipping = ChronopostHomeDeliveryDeliveryModeQuery::create()
@@ -160,6 +170,7 @@ class ChronopostHomeDelivery extends AbstractDeliveryModule
         if (null !== $prices || null !== $freeShipping) {
             return true;
         }
+
         return false;
     }
 

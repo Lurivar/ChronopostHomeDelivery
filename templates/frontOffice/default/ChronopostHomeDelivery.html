@@ -1,8 +1,8 @@
-{loop type="delivery" name="chronopost" id=$module force_return="true"}
-    <tr style="display: none;">
+{loop type="delivery" name="chronopost-home-delivery" id=$module force_return="true"}
+    <tr style="display: none;" id="deliverytype-chronopost-home-delivery-tr">
         <td colspan="3">
             <div id="point-chronopost">
-                <div id="deliverytype-chronopost">
+                <div id="deliverytype-chronopost-home-delivery">
 
                     {chronopostHomeDeliveryDeliveryType}
 
@@ -128,8 +128,8 @@
     </tr>
 
     <script>
-        function displayContent () {
-            $("#deliverytype-chronopost").closest('tr').show(function () {
+        function displayContentHomeDelivery () {
+            $("#deliverytype-chronopost-home-delivery-tr").show(function () {
                 $('.btn-checkout-next').hide();
             });
         }
@@ -142,10 +142,10 @@
 
             $('[name="thelia_order_delivery[delivery-module]"]', '.table-delivery').on('change', function(){
                 if($(this).attr('id') != 'delivery-method_{$module}') {
-                    $("#deliverytype-chronopost").closest('tr').hide();
+                    $("#deliverytype-chronopost-home-delivery-tr").hide();
                     $('.btn-checkout-next').show();
                 } else {
-                    displayContent();
+                    displayContentHomeDelivery();
                 }
             });
 
