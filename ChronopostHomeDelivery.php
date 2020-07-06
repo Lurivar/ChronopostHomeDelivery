@@ -223,14 +223,31 @@ class ChronopostHomeDelivery extends AbstractDeliveryModule
             $freeShippingFrom = null;
         }
 
-        /** Set the initial postage price as null */
-        $postage = null;
+        /** Set the initial postage price as 0 */
+        $postage = 0;
 
         /** If free shipping is enabled, skip and return 0 */
         if (!$freeShipping) {
 
             /** If a minimum price for free shipping is defined and the amount of the cart reach this limit, return 0. */
             if (null !== $freeShippingFrom && $freeShippingFrom <= $cartAmount) {
+                return $postage;
+            }
+
+            /** Get the minimum price for free shipping in the area of the order */
+            $cartAmountFreeShipping = ChronopostHomeDeliveryAreaFreeshippingQuery::create()
+                ->filterByAreaId($areaId)
+                ->filterByDeliveryModeId($deliveryType->getId())
+                ->findOne();
+
+            if (null !== $cartAmountFreeShipping) {
+                $cartAmountFreeShipping = $cartAmountFreeShipping->getCartAmount();
+            }
+
+            /** If the cart price is superior to the minimum price for free shipping in the area of the order,
+             * return the postage as free.
+             */
+            if ($cartAmountFreeShipping !== null && $cartAmountFreeShipping <= $cartAmount) {
                 return 0;
             }
 
@@ -258,26 +275,7 @@ class ChronopostHomeDelivery extends AbstractDeliveryModule
                 return null;
             }
 
-            /** Get the minimum price for free shipping in the area of the order */
-            $cartAmountFreeShipping = ChronopostHomeDeliveryAreaFreeshippingQuery::create()
-                ->filterByAreaId($areaId)
-                ->filterByDeliveryModeId($deliveryType->getId())
-                ->findOne();
-
-            if (null !== $cartAmountFreeShipping) {
-                $cartAmountFreeShipping = $cartAmountFreeShipping->getCartAmount();
-            }
-
-            /** If the cart price is superior to the minimum price for free shipping in the area of the order,
-             * return the postage as free.
-             */
-            if ($cartAmountFreeShipping !== null && $cartAmountFreeShipping <= $cartAmount) {
-                return 0;
-            }
-
             $postage = $firstPrice->getPrice();
-        } else {
-            return 0;
         }
 
         return $postage;
