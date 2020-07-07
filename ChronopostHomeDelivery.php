@@ -324,7 +324,7 @@ class ChronopostHomeDelivery extends AbstractDeliveryModule
      *
      * @return array
      */
-    public function getActivatedDeliveryTypes()
+    public static function getActivatedDeliveryTypes()
     {
         $config = ChronopostHomeDeliveryConst::getConfig();
         $deliveryTypes = ChronopostHomeDeliveryConst::CHRONOPOST_HOME_DELIVERY_DELIVERY_CODES;
